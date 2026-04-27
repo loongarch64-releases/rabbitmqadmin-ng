@@ -30,6 +30,7 @@ prepare()
     # 例如：apt-get update && apt-get install -y build-essential
     # 例如：git clone -b ${VERSION} --depth=1 https://github.com/rabbitmq/rabbitmqadmin-ng ${SRCS}/${VERSION}
     # 例如：patch -p1 < patches/loongarch-fix.patch
+    git clone -b ${VERSION} --depth=1 https://github.com/rabbitmq/rabbitmqadmin-ng ${SRCS}/${VERSION}
     
     echo "✅ [Prepare] Environment ready."
 }
@@ -42,6 +43,11 @@ build()
     # TODO: 在此处添加编译命令
     # 例如：make -j$(nproc) ARCH=loongarch64
     # 例如：cmake -DCMAKE_BUILD_TYPE=Release .. && make
+    pushd ${SRCS}/${VERSION}
+
+    cargo build --release
+
+    popd
     
 
     echo "✅ [Build] Compilation finished."
@@ -55,6 +61,10 @@ post_build()
     # TODO: 在此处添加整理命令
     # 例如：mkdir -p dists && cp binary dist/
     # 例如：strip dist/binary
+
+    ARCH=$(uname -m)
+    cp ${SRCS}/${VERSION}/target/release/rabbitmqadmin \
+      ${DISTS}/${VERSION}/rabbitmqadmin-${VERSION#v}-${ARCH}-unknown-linux-gnu
     
     echo "✅ [Post-Build] Artifacts ready in ./dists/${VERSION}."
 }
