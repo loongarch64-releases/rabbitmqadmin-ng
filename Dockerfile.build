@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     libc6-dev \
     build-essential \
+    musl-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # 1. 设置环境变量，这样后续所有 RUN 指令都能找到 rust 命令
@@ -24,6 +25,11 @@ RUN set -eux; \
     # (可选) 给予其他用户执行权限
     chmod -R a+w $RUSTUP_HOME $CARGO_HOME;
 
-WORKDIR /workspace
+# 3. 安装 rust target
+RUN set -eux; \
+    rustup target add loongarch64-unknown-linux-gnu; \
+    rustup target add loongarch64-unknown-linux-musl
+
+WORKDIR /src
 
 CMD ["/bin/bash"]

@@ -15,6 +15,10 @@ SRCS="${ROOT_DIR}/srcs"
 
 mkdir -p "${DISTS}/${VERSION}" "${SRCS}"
 
+targets=(
+"loongarch64-unknown-linux-gnu"
+"loongarch64-unknown-linux-musl"
+)
 # ==========================================
 # 👇 用户自定义构建逻辑 (示例)
 # ==========================================
@@ -43,9 +47,19 @@ build()
     # TODO: 在此处添加编译命令
     # 例如：make -j$(nproc) ARCH=loongarch64
     # 例如：cmake -DCMAKE_BUILD_TYPE=Release .. && make
+    #targets=(
+    #loongarch64-unknown-linux-gnu
+    #loongarch64-unknown-linux-musl
+    #)
     pushd ${SRCS}/${VERSION}
 
-    cargo build --release
+    # glibc
+    cargo build --release --target=loongarch64-unknown-linux-gnu
+
+    # musl
+    RUSTFLAGS="-C target-feature=+crt-static" \
+    CC_loongarch64_unknown_linux_musl=musl-gcc \
+    cargo build --release --target=loongarch64-unknown-linux-musl
 
     popd
     
@@ -62,9 +76,10 @@ post_build()
     # 例如：mkdir -p dists && cp binary dist/
     # 例如：strip dist/binary
 
-    ARCH=$(uname -m)
-    cp ${SRCS}/${VERSION}/target/release/rabbitmqadmin \
-      ${DISTS}/${VERSION}/rabbitmqadmin-${VERSION#v}-${ARCH}-unknown-linux-gnu
+    for target in ${targets[@]}; do
+        cp ${SRCS}/${VERSION}/target/${target}/release/rabbitmqadmin \
+           ${DISTS}/${VERSION}/rabbitmqadmin-${VERSION#v}-${target}
+    done
     
     echo "✅ [Post-Build] Artifacts ready in ./dists/${VERSION}."
 }
