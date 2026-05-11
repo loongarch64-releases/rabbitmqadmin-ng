@@ -1,4 +1,4 @@
-FROM debian:forky
+FROM lcr.loongnix.cn/library/debian:forky
 
 RUN apt-get update && apt-get install -y \
     ca-certificates \
