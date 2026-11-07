@@ -2,7 +2,7 @@ name: Auto Build rabbitmqadmin-ng (Self hosted)
 
 on:
   schedule:
-   - cron: '0 16 * * *'
+    - cron: '30 21 * * *'
   workflow_dispatch:
 
 env:
